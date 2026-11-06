@@ -14,10 +14,11 @@
 <style>
 /* =========================================================
    Saint Paul Jr · calculadora "5 números"
-   Mesmo desenho do site da SPJ (css/style.css, paginas.css e
-   animacoes.css): cabeçalho escuro, capa em grade com a rede
-   que reage ao cursor, seções areia com textura de pontos,
-   chamada escura, rodapé preto e botão de WhatsApp.
+   Mesmo desenho do site da SPJ: cabeçalho escuro, capa em grade
+   com a rede que reage ao cursor, seções areia com textura de
+   pontos, rodapé preto e botão de WhatsApp.
+   A calculadora é um cartão na capa: uma pergunta por passo,
+   progresso em ponto a ponto e o e-mail pedido ao concluir.
    ========================================================= */
 
 :root {
@@ -42,6 +43,8 @@
   --margem: clamp(16px, 4vw, 40px);
   --altura-cabecalho: 80px;
   --raio: 4px;
+  --mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --suave: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ---------- Base ---------- */
@@ -61,9 +64,10 @@ body {
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; }
 button, input { font: inherit; color: inherit; }
-h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
+h1, h2, h3, h4, p, ul, ol, fieldset { margin: 0; }
+fieldset { border: 0; padding: 0; min-width: 0; }
 :where(ul, ol)[role="list"] { list-style: none; padding: 0; }
-[id] { scroll-margin-top: var(--altura-cabecalho); }
+[id] { scroll-margin-top: calc(var(--altura-cabecalho) + 16px); }
 :focus-visible { outline: 3px solid var(--petroleo); outline-offset: 3px; }
 .escuro :focus-visible { outline-color: var(--petroleo-claro); }
 @media (prefers-reduced-motion: reduce) {
@@ -90,37 +94,13 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
-.titulo-barra::after {
-  content: "";
-  display: block;
-  width: 72px;
-  height: 6px;
-  margin-top: 20px;
-  background: var(--cta);
-}
-.subtitulo {
-  font-family: var(--fonte-titulo);
-  font-weight: 700;
-  font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.875rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-}
-.lead {
-  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
-  line-height: 1.5;
-  color: var(--texto-apoio);
-  margin-top: 24px;
-  max-width: 60ch;
-}
+.titulo-barra::after { content: ""; display: block; width: 72px; height: 6px; margin-top: 20px; background: var(--cta); }
+.lead { font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem); line-height: 1.5; color: var(--texto-apoio); margin-top: 24px; max-width: 60ch; }
 .escuro .lead { color: rgba(255, 255, 255, 0.86); }
 
 /* ---------- Botões ---------- */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6em;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.6em;
   padding: 15px 24px;
   border: 2px solid transparent;
   border-radius: 2px;
@@ -133,60 +113,39 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 .btn-grande { padding: 18px 30px; font-size: 1.125rem; font-weight: 700; }
 .btn-mostarda { background: var(--cta); color: var(--cta-texto); }
 .btn-mostarda:hover { background: var(--cta-hover); }
+.btn-texto {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 10px 2px;
+  border: 0; background: none;
+  font-weight: 600; color: var(--petroleo);
+  text-decoration: none; cursor: pointer;
+}
+.btn-texto svg { width: 18px; height: 18px; transition: transform 0.2s; }
+.btn-texto:hover svg { transform: translateX(-4px); }
+.btn-texto:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 /* ---------- Cabeçalho ---------- */
 .cabecalho {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 50;
+  position: fixed; inset: 0 0 auto; z-index: 50;
   height: var(--altura-cabecalho);
   color: var(--branco);
   background: var(--cabecalho);
   box-shadow: 0 1px 0 var(--linha-escura);
 }
 .cabecalho-inner { height: 100%; display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); }
-.nav-principal { display: none; flex: 1; }
-.nav-principal ul { display: flex; justify-content: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
-.nav-link {
-  position: relative;
-  display: inline-flex;
-  padding: 10px 14px;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: var(--raio);
-  transition: color 0.2s;
-}
-.nav-link:hover { color: var(--petroleo-claro); }
+.cabecalho-rotulo { display: none; font-size: 0.9375rem; font-weight: 600; color: rgba(255, 255, 255, 0.72); }
+@media (min-width: 760px) { .cabecalho-rotulo { display: block; } }
 .btn-cabecalho { margin-left: auto; padding: 12px 18px; font-size: 0.9375rem; white-space: nowrap; }
-@media (min-width: 840px) {
-  .nav-principal { display: block; }
-  .btn-cabecalho { margin-left: 0; padding: 14px 24px; font-size: 1rem; }
-}
+@media (min-width: 840px) { .btn-cabecalho { padding: 14px 24px; font-size: 1rem; } }
 @media (max-width: 380px) { .btn-cabecalho { padding: 10px 12px; font-size: 0.875rem; } }
 
 /* Logo: "SPjr" desliza para "Saint Paul jr" e o pingo quica (animacoes.css do site) */
 .logo { display: inline-flex; flex: none; align-items: center; color: var(--branco); text-decoration: none; }
-.logo-anim {
-  display: inline-flex;
-  align-items: baseline;
-  padding-top: 0.18em;
-  font: 800 2.125rem/1 var(--fonte-titulo);
-  letter-spacing: -0.035em;
-  white-space: nowrap;
-}
-.logo-ext { display: inline-grid; grid-template-columns: 0fr; transition: grid-template-columns 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
-.logo-ext > span { min-width: 0; overflow: hidden; opacity: 0; transform: translateX(-60%); transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.logo-anim { display: inline-flex; align-items: baseline; padding-top: 0.18em; font: 800 2.125rem/1 var(--fonte-titulo); letter-spacing: -0.035em; white-space: nowrap; }
+.logo-ext { display: inline-grid; grid-template-columns: 0fr; transition: grid-template-columns 0.6s var(--suave); }
+.logo-ext > span { min-width: 0; overflow: hidden; opacity: 0; transform: translateX(-60%); transition: opacity 0.45s ease, transform 0.6s var(--suave); }
 .logo-j { position: relative; }
-.logo-ponto {
-  position: absolute;
-  left: 0.1em;
-  top: -0.2em;
-  width: 0.3em;
-  height: 0.3em;
-  border-radius: 50%;
-  pointer-events: none;
-  background: var(--pingo-logo);
-}
+.logo-ponto { position: absolute; left: 0.1em; top: -0.2em; width: 0.3em; height: 0.3em; border-radius: 50%; pointer-events: none; background: var(--pingo-logo); }
 .logo:hover .logo-ext, .logo:focus-visible .logo-ext { grid-template-columns: 1fr; }
 .logo:hover .logo-ext > span, .logo:focus-visible .logo-ext > span { opacity: 1; transform: none; }
 .logo:hover .logo-ext + span + .logo-ext > span { transition-delay: 0.08s; }
@@ -202,14 +161,12 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
   .logo:hover .logo-ponto, .logo:focus-visible .logo-ponto { animation: spj-pingo-quica 0.8s cubic-bezier(0.55, 0, 0.45, 1) both; }
 }
 @media (max-width: 380px) { .logo-anim { font-size: 1.75rem; } }
-.logo-fixo { color: var(--branco); }
 
 /* ---------- Seções ---------- */
 .secao { position: relative; padding-block: clamp(72px, 9vw, 128px); }
-.secao-escura { background: var(--petroleo-escuro); color: var(--branco); }
 .secao-cabeca { max-width: 760px; margin-bottom: clamp(40px, 5vw, 64px); }
 
-/* Emendas entre seções: faixas em degradê (main.js do site, iniciarEmendas) */
+/* Emendas entre seções (main.js do site, iniciarEmendas) */
 .com-emenda { position: relative; isolation: isolate; }
 .emenda {
   position: absolute; left: 0; right: 0; z-index: -1;
@@ -229,15 +186,13 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 /* Grafismo: ponto do j cortado pela borda */
 .ponto-cortado {
   position: absolute; right: 0; bottom: 0;
-  width: clamp(180px, 24vw, 320px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--petroleo);
+  width: clamp(180px, 24vw, 320px); aspect-ratio: 1;
+  border-radius: 50%; background: var(--petroleo);
   transform: translate(38%, 45%);
   pointer-events: none;
 }
 
-/* Textura de pontos no canto da seção, com o ponto cortado por cima */
+/* Textura de pontos no canto da seção */
 .secao-textura { overflow: hidden; isolation: isolate; }
 .secao-textura::before {
   content: ""; position: absolute; top: 0; right: 0; z-index: -1;
@@ -253,12 +208,8 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
   .ponto-cortado-topo { width: 180px; }
 }
 
-/* ---------- Capa: grade escura com a rede ---------- */
-.fundo-grade {
-  position: relative; isolation: isolate; overflow: hidden;
-  color: var(--branco);
-  background-color: #0f2326;
-}
+/* ---------- Capa: grade escura com a rede e o cartão da calculadora ---------- */
+.fundo-grade { position: relative; isolation: isolate; overflow: hidden; color: var(--branco); background-color: #0f2326; }
 .fundo-grade::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background: radial-gradient(ellipse 60% 70% at 15% 35%, rgba(24, 72, 72, 0.55), transparent 70%),
@@ -268,221 +219,182 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 .rede { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 .fundo-rede > .container { position: relative; z-index: 1; }
 
-.capa { padding-top: calc(var(--altura-cabecalho) + clamp(56px, 9vw, 120px)); padding-bottom: clamp(40px, 5vw, 56px); }
-.capa .titulo { max-width: 17ch; font-size: clamp(2.5rem, 1.4rem + 3.6vw, 4.5rem); }
-.capa .lead { max-width: 56ch; }
-.capa-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 32px; }
-.capa-acoes small { font-size: 0.9375rem; color: rgba(255, 255, 255, 0.72); }
+.capa { padding-top: calc(var(--altura-cabecalho) + clamp(32px, 6vw, 80px)); padding-bottom: clamp(72px, 9vw, 120px); }
+.capa-grid { display: grid; gap: clamp(36px, 5vw, 48px); align-items: center; }
+@media (min-width: 1000px) {
+  .capa-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(48px, 6vw, 88px); }
+}
+.capa .titulo { max-width: 14ch; font-size: clamp(2.375rem, 1.3rem + 3.4vw, 4.25rem); }
+.capa .lead { max-width: 46ch; }
 
-/* Os cinco números, na faixa de frentes da capa do site */
-.capa-numeros { margin-top: clamp(56px, 8vw, 104px); }
-.capa-numeros ol { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
-.capa-numeros a {
+/* O que a pessoa descobre: ponto como marcador */
+.descobre { display: grid; margin-top: 32px; max-width: 460px; }
+.descobre li {
+  display: grid; grid-template-columns: 14px 1fr; gap: 14px; align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid var(--linha-escura);
+  color: rgba(255, 255, 255, 0.86);
+}
+.descobre li:last-child { border-bottom: 1px solid var(--linha-escura); }
+.descobre li::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--petroleo-claro); transform: translateY(-1px); }
+.descobre strong { color: var(--branco); font-weight: 600; }
+@media (max-width: 999px) { .descobre { display: none; } }
+
+/* Cartão da calculadora */
+.calc {
   position: relative;
-  display: block;
-  padding-top: 14px;
-  border-top: 2px solid rgba(255, 255, 255, 0.38);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.9);
-  transition: border-color 0.2s, color 0.2s, padding-top 0.25s;
-}
-.capa-numeros a span { display: block; color: var(--cta); margin-bottom: 4px; }
-.capa-numeros a::before {
-  content: ""; position: absolute; top: -2px; left: 0; width: 100%; height: 2px;
-  background: var(--cta);
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.capa-numeros a:hover { color: var(--branco); padding-top: 20px; }
-.capa-numeros a:hover::before, .capa-numeros a.feito::before { transform: scaleX(1); }
-@media (max-width: 759px) {
-  .capa-numeros ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  .capa-numeros li:last-child { grid-column: 1 / -1; }
-}
-
-/* ---------- Calculadora ---------- */
-.blocos { display: grid; gap: 24px; }
-.bloco {
-  display: grid;
-  gap: 28px;
+  overflow: hidden;
+  overflow: clip; /* corta sem virar área de rolagem: o passo que entra deslizando não empurra o cartão */
+  isolation: isolate;
   padding: clamp(24px, 3.5vw, 44px);
-  border: 1px solid var(--linha);
   border-radius: 6px;
-  background: var(--branco);
+  background: var(--fundo-claro);
+  color: var(--preto);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(159, 211, 203, 0.18);
+  scroll-margin-top: calc(var(--altura-cabecalho) + 12px);
 }
-@media (min-width: 920px) {
-  .bloco { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(40px, 5vw, 72px); align-items: start; }
-}
-.bloco-cabeca { display: grid; gap: 12px; align-content: start; }
-.bloco-cabeca .eyebrow { margin-bottom: 0; }
-.bloco-num {
-  display: flex; align-items: center; gap: 12px;
-}
-/* O ponto cresce de bloco em bloco, como o ponto a ponto */
-.bloco-num::before {
-  content: ""; flex: none;
-  width: var(--tamanho, 12px); height: var(--tamanho, 12px);
-  border-radius: 50%; background: var(--petroleo);
-}
-.bloco:nth-child(1) { --tamanho: 12px; }
-.bloco:nth-child(2) { --tamanho: 15px; }
-.bloco:nth-child(3) { --tamanho: 18px; }
-.bloco:nth-child(4) { --tamanho: 22px; }
-.bloco:nth-child(5) { --tamanho: 26px; }
-.bloco-cabeca p { color: var(--texto-apoio); }
-.alerta {
-  margin-top: 8px;
-  padding: 4px 0 4px 18px;
-  border-left: 6px solid var(--petroleo);
-  font-size: 0.9375rem;
-  color: var(--texto-apoio);
-}
-.alerta strong {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--petroleo);
+/* Ponto do j cortado no canto do cartão */
+.calc::after {
+  content: ""; position: absolute; right: -90px; top: -90px; z-index: -1;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: #e9e4cf;
 }
 
-.linhas { border-top: 1px solid var(--linha); }
-.linha {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 210px;
-  gap: 6px 20px;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--linha);
+/* Progresso: ponto a ponto, crescendo da esquerda para a direita */
+.progresso { display: grid; gap: 12px; margin-bottom: clamp(24px, 3vw, 32px); }
+.progresso-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 0.875rem; font-weight: 600; color: var(--texto-apoio); }
+.progresso-topo b { color: var(--petroleo); }
+.trilha { position: relative; display: flex; align-items: center; justify-content: space-between; height: 30px; }
+.trilha::before, .trilha-cheia {
+  content: ""; position: absolute; left: 15px; right: 15px; top: 50%; height: 3px; margin-top: -1.5px;
+  background: #ddd6bb;
 }
-.linha > label, .linha > .lbl { font-weight: 500; }
-.dica, .conta { grid-column: 1 / -1; font-size: 0.875rem; color: var(--texto-apoio); margin-top: -2px; }
+.trilha-cheia {
+  background: var(--petroleo);
+  transform-origin: left;
+  transform: scaleX(var(--feito, 0));
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.trilha button {
+  position: relative; z-index: 1;
+  display: grid; place-items: center;
+  width: 30px; height: 30px; padding: 0;
+  border: 0; background: transparent;
+  cursor: pointer;
+}
+.trilha button:disabled { cursor: default; }
+.trilha button::before {
+  content: "";
+  width: var(--t); height: var(--t);
+  border-radius: 50%;
+  background: #ddd6bb;
+  transition: background-color 0.3s, transform 0.4s var(--mola);
+}
+.trilha button:nth-of-type(1) { --t: 12px; }
+.trilha button:nth-of-type(2) { --t: 15px; }
+.trilha button:nth-of-type(3) { --t: 18px; }
+.trilha button:nth-of-type(4) { --t: 22px; }
+.trilha button:nth-of-type(5) { --t: 26px; }
+.trilha button.feito::before { background: var(--petroleo); }
+.trilha button[aria-current="step"]::before { background: var(--cta); transform: scale(1.18); }
+
+/* Cada passo */
+.passo { display: grid; gap: 20px; }
+.passo-cabeca .eyebrow { margin-bottom: 10px; }
+.passo h2 {
+  font-family: var(--fonte-titulo);
+  font-weight: 800;
+  font-size: clamp(1.625rem, 1.25rem + 1.3vw, 2.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--petroleo-escuro);
+  text-wrap: balance;
+}
+.passo-cabeca p:not(.eyebrow) { margin-top: 10px; color: var(--texto-apoio); max-width: 52ch; }
+.campos { display: grid; gap: 16px; }
+@media (min-width: 560px) { .campos-duplos { grid-template-columns: 1fr 1fr; } }
+.pergunta { display: grid; gap: 8px; align-content: start; }
+.pergunta label { font-weight: 600; font-size: 0.9375rem; }
 .valor {
   display: flex; align-items: center;
-  height: 50px; padding: 0 14px;
-  border: 1px solid var(--linha-campo);
+  height: 60px; padding: 0 16px;
+  border: 2px solid var(--linha-campo);
   border-radius: var(--raio);
-  background: var(--fundo-claro);
-  transition: border-color 0.2s, background-color 0.2s;
+  background: var(--branco);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .valor:hover { border-color: var(--petroleo); }
-.valor:focus-within { outline: 3px solid var(--petroleo); outline-offset: 0; border-color: var(--petroleo); background: #fffdf3; }
-.valor span { flex: none; font-size: 0.9375rem; color: var(--texto-apoio); }
+.valor:focus-within { border-color: var(--petroleo); box-shadow: 0 0 0 4px rgba(24, 72, 72, 0.16); }
+.valor span { flex: none; font-weight: 600; color: var(--texto-apoio); }
 .valor input {
   appearance: none; -webkit-appearance: none;
   width: 100%; min-width: 0; height: 100%;
-  margin: 0; padding: 0 0 0 6px;
+  margin: 0; padding: 0 0 0 8px;
   border: 0; outline: none; background: transparent;
-  text-align: right;
-  font: 600 1.0625rem var(--fonte-texto);
+  font: 700 1.375rem var(--fonte-titulo);
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   color: var(--petroleo-escuro);
 }
-.saida { text-align: right; font-weight: 600; padding-right: 15px; font-variant-numeric: tabular-nums; }
-.resultado > .lbl { font-weight: 600; }
-.resultado .saida {
-  font: 800 clamp(1.5rem, 1.3rem + 0.6vw, 1.875rem)/1.1 var(--fonte-titulo);
-  letter-spacing: -0.02em;
-  color: var(--petroleo);
-}
-.negativo { color: var(--preto) !important; text-decoration: underline; text-decoration-color: var(--cta); text-decoration-thickness: 3px; text-underline-offset: 5px; }
-.simulacao {
-  margin: 20px 0 4px;
-  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--texto-apoio);
+.valor input::placeholder { color: #b9b29a; font-weight: 600; }
+.pergunta.falta .valor { border-color: var(--cta); box-shadow: 0 0 0 4px rgba(179, 130, 1, 0.18); }
+.pergunta .aviso { display: none; font-size: 0.8125rem; font-weight: 600; color: #7a5900; }
+.pergunta.falta .aviso { display: block; }
+
+.passo-acoes { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.passo-acoes .btn { margin-left: auto; }
+.dica-enter { margin-top: 8px; font-size: 0.8125rem; color: var(--texto-apoio); text-align: right; }
+@media (hover: none) { .dica-enter { display: none; } }
+@media (max-width: 480px) {
+  .passo-acoes { flex-direction: column-reverse; align-items: stretch; }
+  .passo-acoes .btn { margin-left: 0; }
+  .passo-acoes .btn-texto { justify-content: center; }
 }
 
-/* Antes do e-mail, os resultados ficam guardados */
-.bloqueado .saida,
-.bloqueado .resultado .saida {
-  display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px;
-  font: 600 0.875rem/1.4 var(--fonte-texto);
-  letter-spacing: 0;
-  color: var(--texto-apoio);
-}
-.bloqueado .saida::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--cta); }
-
-@media (max-width: 600px) {
-  .linha { grid-template-columns: minmax(0, 1fr); }
-  .saida, .bloqueado .saida { text-align: left; justify-content: flex-start; padding-right: 0; }
-}
-
-/* ---------- Sua análise: chamada escura ---------- */
-.cta-dor { overflow: hidden; }
-.cta-dor .container { position: relative; z-index: 1; }
-.cta-dor .ponto-cortado { width: clamp(240px, 32vw, 460px); transform: translate(35%, 40%); }
-.cta-dor-grid { display: grid; gap: 48px; }
-@media (min-width: 960px) {
-  .cta-dor-grid { grid-template-columns: 5fr 6fr; align-items: center; column-gap: clamp(56px, 7vw, 104px); }
-}
-.cta-dor-texto .titulo { max-width: 14ch; }
-.cta-dor-texto .lead { max-width: 42ch; }
-
-.form-lead {
-  display: grid;
-  gap: 18px;
-  padding: clamp(24px, 4vw, 44px);
-  border-radius: 6px;
-  background: var(--fundo-claro);
-  border: 1px solid var(--linha);
-  color: var(--petroleo-escuro);
-}
-.form-titulo { font-family: var(--fonte-titulo); font-size: 1.5rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+/* Passo do e-mail */
+.pronto { display: inline-flex; align-items: center; gap: 10px; }
+.pronto::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--petroleo); }
 .campo { display: grid; gap: 8px; }
 .campo label { font-size: 0.9375rem; font-weight: 600; }
 .campo label small { font-weight: 400; color: #5b6b6b; }
 .campo input {
-  width: 100%;
-  padding: 13px 14px;
-  border: 1px solid var(--linha-campo);
-  border-radius: var(--raio);
-  background: var(--branco);
-  color: var(--preto);
-  font-size: 1rem;
+  width: 100%; height: 54px; padding: 0 14px;
+  border: 2px solid var(--linha-campo); border-radius: var(--raio);
+  background: var(--branco); color: var(--preto); font-size: 1rem;
 }
-.campo input:focus-visible { outline: 3px solid var(--petroleo); outline-offset: 0; border-color: var(--petroleo); }
-.form-lead .btn { justify-self: start; margin-top: 6px; }
+.campo input:focus-visible { outline: none; border-color: var(--petroleo); box-shadow: 0 0 0 4px rgba(24, 72, 72, 0.16); }
 .erro { margin: 0; padding-left: 12px; border-left: 3px solid var(--cta); font-size: 0.9375rem; font-weight: 500; color: var(--preto); }
 .fino { font-size: 0.875rem; color: var(--texto-apoio); }
-@media (max-width: 560px) { .form-lead .btn { justify-self: stretch; } }
+.portao .btn-grande { width: 100%; }
+.portao .btn-texto { justify-self: start; }
 
-/* Depois do e-mail: os números em blocos petróleo, com o ponto cortado que cresce */
-.numeros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+/* Resumo depois do e-mail */
+.numeros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .numero {
   position: relative; overflow: hidden; isolation: isolate;
-  display: flex; flex-direction: column; gap: 10px;
-  min-height: 168px;
-  padding: clamp(20px, 2.5vw, 28px);
+  display: flex; flex-direction: column; gap: 6px;
+  min-height: 132px;
+  padding: 18px 20px;
   border-radius: 6px;
   background: var(--petroleo);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s, background-color 0.3s;
+  color: var(--branco);
+  transition: transform 0.3s var(--suave), background-color 0.3s;
 }
 .numero::after {
-  content: ""; position: absolute; right: -60px; bottom: -60px; z-index: -1;
-  width: 130px; height: 130px; border-radius: 50%;
-  background: rgba(159, 211, 203, 0.12);
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  content: ""; position: absolute; right: -50px; bottom: -50px; z-index: -1;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: #24585a;
+  transition: transform 0.5s var(--suave);
 }
-.numero:hover { background: #123b3b; transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22); }
+.numero:hover { background: #123b3b; transform: translateY(-3px); }
 .numero:hover::after { transform: scale(1.6); }
-.numero span { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta); }
-.numero b {
-  margin-top: auto;
-  font: 800 clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem)/1 var(--fonte-titulo);
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: #f5f4e0;
-  overflow-wrap: anywhere;
-}
-.numero small { font-size: 0.875rem; color: rgba(255, 255, 255, 0.76); }
-@media (max-width: 600px) { .numero { min-height: 140px; } }
-@media (max-width: 359px) { .numeros { grid-template-columns: minmax(0, 1fr); } .numero { min-height: 0; } }
+.numero span { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cta-hover); }
+.numero b { margin-top: auto; font: 800 clamp(1.5rem, 1.2rem + 1vw, 2rem)/1 var(--fonte-titulo); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #f5f4e0; overflow-wrap: anywhere; }
+.numero small { font-size: 0.8125rem; color: rgba(255, 255, 255, 0.8); }
+.resumo-acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+@media (max-width: 359px) { .numeros { grid-template-columns: minmax(0, 1fr); } }
 
-/* ---------- Análise item por item ---------- */
+/* ---------- Resultado item por item ---------- */
 .abre {
   padding: clamp(28px, 4vw, 48px);
   border-left: 6px solid var(--petroleo);
@@ -495,40 +407,69 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 .abre p:not(.eyebrow) {
   font-family: var(--fonte-titulo);
   font-size: clamp(1.5rem, 1.15rem + 1.5vw, 2.375rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-weight: 800; line-height: 1.1; letter-spacing: -0.03em;
   color: var(--petroleo-escuro);
   max-width: 32ch;
   text-wrap: balance;
 }
-.itens { display: grid; gap: 16px; margin-top: clamp(32px, 4vw, 48px); }
-@media (min-width: 760px) { .itens { grid-template-columns: repeat(2, minmax(0, 1fr)); } .itens li:first-child { grid-column: 1 / -1; } }
-.itens li {
-  display: grid;
-  gap: 10px;
-  align-content: start;
+.cartoes { display: grid; gap: 16px; margin-top: clamp(24px, 3vw, 32px); }
+@media (min-width: 760px) { .cartoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cartoes > li:last-child { grid-column: 1 / -1; } }
+@media (min-width: 1100px) {
+  .cartoes { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .cartoes > li { grid-column: span 2; }
+  .cartoes > li:nth-child(4), .cartoes > li:nth-child(5) { grid-column: span 3; }
+}
+.cartao {
+  display: grid; gap: 10px; align-content: start;
   padding: 24px;
   border: 1px solid var(--linha);
   border-radius: 6px;
   background: var(--branco);
+  transition: transform 0.3s var(--suave), box-shadow 0.3s;
 }
-.itens h3 { font-size: 1.125rem; font-weight: 600; }
-.itens p { color: var(--texto-apoio); }
+.cartao:hover { transform: translateY(-4px); box-shadow: 0 18px 36px rgba(25, 24, 24, 0.1); }
+.cartao .eyebrow { margin: 0; }
+.cartao-valor { font: 800 clamp(2rem, 1.6rem + 1.4vw, 2.75rem)/1 var(--fonte-titulo); letter-spacing: -0.035em; color: var(--petroleo); font-variant-numeric: tabular-nums; }
+.cartao-detalhe { font-size: 0.9375rem; font-weight: 600; color: var(--petroleo-escuro); }
+.cartao p:last-child { color: var(--texto-apoio); }
+.negativo { color: var(--preto); text-decoration: underline; text-decoration-color: var(--cta); text-decoration-thickness: 3px; text-underline-offset: 5px; }
 .selo {
   justify-self: start;
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 6px 10px;
-  border-radius: 2px;
+  margin-top: 4px;
+  padding: 6px 10px; border-radius: 2px;
   font: 600 0.75rem/1 var(--fonte-texto);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0.12em; text-transform: uppercase;
 }
 .selo::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .s-ok { background: var(--fundo-claro); color: var(--petroleo-escuro); border: 1px solid var(--linha); }
 .s-atencao { background: var(--cta); color: var(--preto); }
 .s-alerta { background: var(--preto); color: var(--branco); }
 .s-alerta::before { background: var(--cta); }
+.refazer { margin-top: 28px; }
+
+/* ---------- Por que esses 5 ---------- */
+.explica { display: grid; gap: 16px; }
+@media (min-width: 760px) { .explica { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .explica { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.explica li {
+  display: grid; gap: 10px; align-content: start;
+  padding: 24px;
+  border: 1px solid var(--linha);
+  border-radius: 6px;
+  background: var(--branco);
+}
+.explica .ponto { width: var(--t); height: var(--t); border-radius: 50%; background: var(--petroleo); }
+.explica li:nth-child(1) { --t: 12px; }
+.explica li:nth-child(2) { --t: 15px; }
+.explica li:nth-child(3) { --t: 18px; }
+.explica li:nth-child(4) { --t: 22px; }
+.explica li:nth-child(5) { --t: 26px; }
+.explica h3 { font: 700 1.25rem/1.15 var(--fonte-titulo); letter-spacing: -0.02em; }
+.explica p { font-size: 0.9375rem; color: var(--texto-apoio); }
+.explica .alerta { padding-left: 12px; border-left: 4px solid var(--petroleo); font-size: 0.875rem; }
+.explica .alerta strong { display: block; font-size: 0.6875rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--petroleo); }
+.explica-acao { margin-top: 32px; }
 
 /* ---------- Chamada final ---------- */
 .cta-final {
@@ -559,29 +500,17 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 
 /* ---------- Rodapé ---------- */
 .rodape { padding-top: clamp(28px, 3vw, 36px); background: var(--preto); color: var(--branco); }
-.rodape-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 20px; }
-.rodape-marca { grid-column: 1 / -1; }
-@media (min-width: 640px) { .rodape-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 960px) {
-  .rodape-grid { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 32px clamp(24px, 3vw, 48px); }
-  .rodape-marca { grid-column: auto; }
-}
+.rodape-grid { display: grid; gap: 28px; }
+@media (min-width: 760px) { .rodape-grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
 .logo-anim.rodape-logo { font-size: 1.5rem; }
-.rodape-desc { margin-top: 10px; max-width: 36ch; font-size: 0.8125rem; line-height: 1.45; color: rgba(255, 255, 255, 0.64); }
+.rodape-desc { margin-top: 10px; max-width: 40ch; font-size: 0.8125rem; line-height: 1.45; color: rgba(255, 255, 255, 0.64); }
 .rodape-contatos { display: grid; justify-items: start; gap: 4px; margin-top: 10px; font-size: 0.8125rem; }
 .rodape-contatos a { text-decoration: none; color: var(--branco); }
 .rodape-titulo { margin-bottom: 10px; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
 .rodape ul { display: grid; gap: 5px; }
 .rodape ul a { font-size: 0.8125rem; text-decoration: none; color: rgba(255, 255, 255, 0.64); transition: color 0.2s; }
 .rodape ul a:hover, .rodape-contatos a:hover { color: var(--branco); text-decoration: underline; text-underline-offset: 3px; }
-.rodape-base {
-  display: grid; gap: 4px;
-  margin-top: clamp(20px, 2.5vw, 28px);
-  padding-block: 12px 84px;
-  border-top: 1px solid var(--linha-escura);
-  font-size: 0.6875rem;
-  color: rgba(255, 255, 255, 0.5);
-}
+.rodape-base { display: grid; gap: 4px; margin-top: clamp(20px, 2.5vw, 28px); padding-block: 12px 84px; border-top: 1px solid var(--linha-escura); font-size: 0.6875rem; color: rgba(255, 255, 255, 0.5); }
 @media (min-width: 760px) { .rodape-base { padding-bottom: 12px; } }
 
 /* ---------- Botão flutuante de WhatsApp ---------- */
@@ -589,23 +518,13 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
   position: fixed; right: clamp(16px, 2.5vw, 28px); bottom: clamp(16px, 2.5vw, 28px); z-index: 40;
   display: grid; justify-items: center; gap: 4px;
   text-decoration: none;
-  transition: opacity 0.4s, translate 0.4s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.4s;
+  transition: opacity 0.4s, translate 0.4s var(--suave), visibility 0.4s;
 }
 .whatsapp-flutuante.escondido { opacity: 0; translate: 0 24px; visibility: hidden; pointer-events: none; }
-.whatsapp-flutuante .bolha {
-  display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%;
-  background: #25d366; color: var(--branco);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s;
-}
+.whatsapp-flutuante .bolha { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #25d366; color: var(--branco); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25); transition: transform 0.2s; }
 .whatsapp-flutuante:hover .bolha { transform: scale(1.06); }
 .whatsapp-flutuante svg { width: 30px; height: 30px; }
-.whatsapp-flutuante .rotulo {
-  padding: 3px 9px; border-radius: 999px;
-  background: #dcf8c6; color: #0b4f2a;
-  font-size: 0.75rem; font-weight: 700; white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
+.whatsapp-flutuante .rotulo { padding: 3px 9px; border-radius: 999px; background: #dcf8c6; color: #0b4f2a; font-size: 0.75rem; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
 @media (max-width: 599px) {
   .whatsapp-flutuante .bolha { width: 52px; height: 52px; }
   .whatsapp-flutuante svg { width: 26px; height: 26px; }
@@ -614,41 +533,42 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
 
 /* ---------- Animações (animacoes.css do site) ---------- */
 @keyframes spj-subir { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes spj-entrar { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes spj-voltar { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
 @keyframes spj-aparecer { from { opacity: 0; } to { opacity: 1; } }
+@keyframes spj-barra { from { width: 0; } to { width: 72px; } }
 @keyframes spj-flutuar { 0%, 100% { translate: 0 0; } 50% { translate: -10px -14px; } }
 @keyframes spj-pulso {
   0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
   70% { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0); }
   100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
 }
-@keyframes spj-valor { 0% { color: var(--cta); } 100% { color: inherit; } }
+/* O cartão chama a atenção ao abrir a página: um contorno mostarda pulsa duas vezes */
+@keyframes spj-chamar {
+  0%, 100% { box-shadow: 0 30px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(159, 211, 203, 0.18); }
+  50% { box-shadow: 0 30px 70px rgba(0, 0, 0, 0.38), 0 0 0 6px rgba(179, 130, 1, 0.55); }
+}
+@keyframes spj-tremer { 0%, 100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 
 @media (prefers-reduced-motion: no-preference) {
   .cabecalho { animation: spj-aparecer 0.8s 0.1s both; }
-  .capa .eyebrow { animation: spj-subir 0.8s 0.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .capa .titulo { animation: spj-subir 0.8s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .capa .titulo-barra::after { animation: spj-barra 0.8s 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .capa .lead { animation: spj-subir 0.8s 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .capa-acoes { animation: spj-subir 0.8s 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .capa-numeros ol { animation: spj-subir 0.7s 1s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  @keyframes spj-barra { from { width: 0; } to { width: 72px; } }
+  .capa-texto .eyebrow { animation: spj-subir 0.8s 0.2s var(--suave) both; }
+  .capa .titulo { animation: spj-subir 0.8s 0.35s var(--suave) both; }
+  .capa .titulo-barra::after { animation: spj-barra 0.8s 0.9s var(--suave) both; }
+  .capa .lead { animation: spj-subir 0.8s 0.55s var(--suave) both; }
+  .descobre { animation: spj-subir 0.8s 0.75s var(--suave) both; }
+  .calc { animation: spj-subir 0.9s 0.5s var(--suave) both, spj-chamar 1.6s 1.6s ease-in-out 2; }
 
-  /* Revelar ao rolar (classe posta pelo script) */
-  .js .revelar {
-    opacity: 0;
-    transform: translateY(32px);
-    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--atraso, 0s), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--atraso, 0s);
-  }
+  .passo.indo { animation: spj-entrar 0.45s var(--suave) both; }
+  .passo.vindo { animation: spj-voltar 0.45s var(--suave) both; }
+  .pergunta.falta .valor { animation: spj-tremer 0.3s ease 1; }
+
+  .js .revelar { opacity: 0; transform: translateY(32px); transition: opacity 0.8s var(--suave) var(--atraso, 0s), transform 0.8s var(--suave) var(--atraso, 0s); }
   .js .revelar.visivel { opacity: 1; transform: none; }
-  .js .revelar .titulo-barra::after { width: 0; transition: width 0.8s 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+  .js .revelar .titulo-barra::after { width: 0; transition: width 0.8s 0.35s var(--suave); }
   .js .revelar.visivel .titulo-barra::after { width: 72px; }
 
-  /* O ponto de cada bloco cresce quando o bloco aparece */
-  .js .bloco.revelar .bloco-num::before { transform: scale(0); transition: transform 0.5s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .js .bloco.revelar.visivel .bloco-num::before { transform: scale(1); }
-
-  /* Ponto a ponto da chamada final: pontos crescem e o traço se desenha */
-  .js .revelar .ponto-a-ponto span { transform: scale(0); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .js .revelar .ponto-a-ponto span { transform: scale(0); transition: transform 0.5s var(--mola); }
   .js .revelar .ponto-a-ponto i { transform: scaleX(0); transform-origin: left; transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1); }
   .js .revelar.visivel .ponto-a-ponto span, .js .revelar.visivel .ponto-a-ponto i { transform: none; }
   .js .revelar.visivel .ponto-a-ponto :nth-child(1) { transition-delay: 0.2s; }
@@ -665,196 +585,196 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
   .btn svg { transition: transform 0.2s; }
   .btn:hover svg { transform: translateX(4px); }
 
-  .nav-link::after {
-    content: ""; position: absolute; left: 14px; right: 14px; bottom: 4px; height: 2px;
-    background: var(--petroleo-claro);
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .nav-link:hover::after { transform: scaleX(1); }
-
-  /* Os números chegam um depois do outro quando a análise é liberada */
-  .entrando .numero, .entrando .itens li, .entrando .abre { animation: spj-subir 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .entrando .numero:nth-child(2), .entrando .itens li:nth-child(2) { animation-delay: 0.09s; }
-  .entrando .numero:nth-child(3), .entrando .itens li:nth-child(3) { animation-delay: 0.18s; }
-  .entrando .numero:nth-child(4), .entrando .itens li:nth-child(4) { animation-delay: 0.27s; }
-  .entrando .itens li:nth-child(5) { animation-delay: 0.36s; }
-  .acendeu { animation: spj-valor 1.2s ease-out; }
+  .entrando .numero, .entrando .cartoes > li, .entrando .abre { animation: spj-subir 0.7s var(--suave) both; }
+  .entrando .numero:nth-child(2), .entrando .cartoes > li:nth-child(2) { animation-delay: 0.09s; }
+  .entrando .numero:nth-child(3), .entrando .cartoes > li:nth-child(3) { animation-delay: 0.18s; }
+  .entrando .numero:nth-child(4), .entrando .cartoes > li:nth-child(4) { animation-delay: 0.27s; }
+  .entrando .cartoes > li:nth-child(5) { animation-delay: 0.36s; }
 }
 </style>
 </head>
-<body class="bloqueado">
-<a class="pular" href="#numeros">Pular para a calculadora</a>
+<body>
+<a class="pular" href="#calculadora">Pular para a calculadora</a>
 
 <!-- ===== Cabeçalho ===== -->
 <header class="cabecalho escuro">
   <div class="container cabecalho-inner">
-    <a class="logo" href="https://joaobusoadm-a11y.github.io/site-saint-paul-jr/" aria-label="Saint Paul Jr, site">
+    <a class="logo" href="#topo" aria-label="Saint Paul Jr, voltar ao início da calculadora">
       <span class="logo-anim" aria-hidden="true"><span>S</span><span class="logo-ext"><span>aint&nbsp;</span></span><span>P</span><span class="logo-ext"><span>aul&nbsp;</span></span><span class="logo-j">ȷ<i class="logo-ponto"></i></span><span>r</span></span>
     </a>
-    <nav class="nav-principal" aria-label="Principal">
-      <ul>
-        <li><a class="nav-link" href="#numeros">Os 5 números</a></li>
-        <li><a class="nav-link" href="#analise">Sua análise</a></li>
-        <li><a class="nav-link" href="#proximo">Próximo passo</a></li>
-      </ul>
-    </nav>
+    <span class="cabecalho-rotulo">Calculadora dos 5 números</span>
     <a class="btn btn-mostarda btn-cabecalho" data-whats href="https://wa.me/556281770062" target="_blank" rel="noopener">Fale conosco</a>
   </div>
 </header>
 
 <main id="conteudo">
 
-  <!-- ===== Capa ===== -->
-  <section class="capa fundo-grade fundo-rede escuro" aria-labelledby="titulo-pagina">
+  <!-- ===== Capa com a calculadora ===== -->
+  <section class="capa fundo-grade fundo-rede escuro" id="topo" aria-labelledby="titulo-pagina">
     <canvas class="rede" aria-hidden="true" data-rede></canvas>
-    <div class="container">
-      <p class="eyebrow">Calculadora gratuita</p>
-      <h1 class="titulo titulo-barra" id="titulo-pagina">5 números que todo dono de empresa deveria saber.</h1>
-      <p class="lead">Coloque os dados de um mês da sua empresa e veja quanto cada venda deixa, quanto você precisa vender para não ter prejuízo e quanto custa trazer um cliente novo.</p>
-      <div class="capa-acoes">
-        <a class="btn btn-mostarda btn-grande" href="#numeros">Preencher meus números <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
-        <small>Leva uns 3 minutos. Tenha à mão os números de um mês.</small>
-      </div>
-      <nav class="capa-numeros" aria-label="Os cinco números">
-        <ol role="list">
-          <li><a href="#b1" data-passo="1"><span>01</span>Ticket médio</a></li>
-          <li><a href="#b2" data-passo="2"><span>02</span>Margem de contribuição</a></li>
-          <li><a href="#b3" data-passo="3"><span>03</span>Ponto de equilíbrio</a></li>
-          <li><a href="#b4" data-passo="4"><span>04</span>CAC</a></li>
-          <li><a href="#b5" data-passo="5"><span>05</span>Taxa de recompra</a></li>
-        </ol>
-      </nav>
-    </div>
-  </section>
-
-  <!-- ===== Os cinco números ===== -->
-  <section class="secao secao-textura" id="numeros" aria-labelledby="titulo-numeros">
-    <div class="ponto-cortado ponto-cortado-topo" aria-hidden="true"></div>
-    <div class="container">
-      <div class="secao-cabeca">
-        <p class="eyebrow">Seus números</p>
-        <h2 class="titulo titulo-barra" id="titulo-numeros">Preencha os campos em areia.</h2>
-        <p class="lead">Os valores que já aparecem são de uma empresa de exemplo. Troque pelos seus. No final, coloque seu e-mail para ver os resultados.</p>
+    <div class="container capa-grid">
+      <div class="capa-texto">
+        <p class="eyebrow">Calculadora gratuita</p>
+        <h1 class="titulo titulo-barra" id="titulo-pagina">5 números que todo dono de empresa deveria saber.</h1>
+        <p class="lead">Responda 5 perguntas com os números de um mês da sua empresa e veja onde ela ganha e onde perde dinheiro.</p>
+        <ul class="descobre" role="list">
+          <li><span><strong>Ticket médio:</strong> quanto cada venda traz</span></li>
+          <li><span><strong>Margem:</strong> quanto sobra de cada venda</span></li>
+          <li><span><strong>Ponto de equilíbrio:</strong> o mínimo para não ter prejuízo</span></li>
+          <li><span><strong>CAC:</strong> quanto custa um cliente novo</span></li>
+          <li><span><strong>Recompra:</strong> quantos clientes voltam</span></li>
+        </ul>
       </div>
 
-      <div class="blocos">
-        <!-- 01 -->
-        <article class="bloco" id="b1" data-bloco="1">
-          <header class="bloco-cabeca">
-            <p class="eyebrow bloco-num">01 · Ticket médio</p>
-            <h3 class="subtitulo">Quanto cada venda traz, em média.</h3>
-            <p class="alerta"><strong>Sinal de alerta</strong>O ticket cai mês a mês enquanto os custos sobem.</p>
-          </header>
-          <div class="linhas">
-            <div class="linha"><label for="fat">Faturamento do mês</label><div class="valor"><span>R$</span><input id="fat" data-type="money" inputmode="decimal" value="100000"></div></div>
-            <div class="linha"><label for="vendas">Número de vendas no mês</label><div class="valor"><input id="vendas" data-type="int" inputmode="numeric" value="2000"></div></div>
-            <div class="linha resultado"><span class="lbl">Ticket médio</span><span class="saida" id="o-ticket">–</span><span class="conta">Conta: faturamento ÷ número de vendas</span></div>
+      <!-- Cartão da calculadora -->
+      <div class="calc" id="calculadora">
+        <div class="progresso" id="progresso">
+          <div class="progresso-topo"><span id="passo-rotulo">Passo <b>1</b> de 5</span><span id="passo-nome">Ticket médio</span></div>
+          <div class="trilha" role="group" aria-label="Passos da calculadora">
+            <span class="trilha-cheia" id="trilha-cheia" aria-hidden="true"></span>
+            <button type="button" data-ir="1" aria-label="Passo 1: ticket médio"></button>
+            <button type="button" data-ir="2" aria-label="Passo 2: margem de contribuição"></button>
+            <button type="button" data-ir="3" aria-label="Passo 3: ponto de equilíbrio"></button>
+            <button type="button" data-ir="4" aria-label="Passo 4: CAC"></button>
+            <button type="button" data-ir="5" aria-label="Passo 5: taxa de recompra"></button>
           </div>
-        </article>
+        </div>
 
-        <!-- 02 -->
-        <article class="bloco" id="b2" data-bloco="2">
-          <header class="bloco-cabeca">
-            <p class="eyebrow bloco-num">02 · Margem de contribuição</p>
-            <h3 class="subtitulo">O que sobra de cada venda depois dos custos que variam com ela.</h3>
-            <p class="alerta"><strong>Sinal de alerta</strong>Dar desconto sem saber quanto ele come da sobra de cada venda.</p>
-          </header>
-          <div class="linhas">
-            <div class="linha"><label for="cv">Custos variáveis por venda</label><div class="valor"><span>R$</span><input id="cv" data-type="money" inputmode="decimal" value="30"></div><span class="dica">Produto, taxa do cartão, comissão, embalagem, frete…</span></div>
-            <div class="linha"><span class="lbl">Sobra por venda</span><span class="saida" id="o-sobra">–</span><span class="conta">Conta: ticket médio − custos variáveis</span></div>
-            <div class="linha resultado"><span class="lbl">Margem de contribuição</span><span class="saida" id="o-margem">–</span><span class="conta">Conta: (preço − custos variáveis) ÷ preço</span></div>
-            <p class="simulacao">Simulação de desconto (opcional)</p>
-            <div class="linha"><label for="desc">Desconto na venda</label><div class="valor"><input id="desc" data-type="pct" inputmode="decimal" value="10"><span>%</span></div></div>
-            <div class="linha"><span class="lbl">Sobra por venda com o desconto</span><span class="saida" id="o-sobradesc">–</span></div>
-            <div class="linha"><span class="lbl">Quanto a sobra diminui</span><span class="saida" id="o-queda">–</span></div>
+        <form id="calc-form" novalidate>
+          <!-- 1 -->
+          <fieldset class="passo" data-passo="1" data-nome="Ticket médio">
+            <div class="passo-cabeca">
+              <p class="eyebrow">01 · Ticket médio</p>
+              <h2>Quanto sua empresa vendeu no último mês?</h2>
+              <p>Com isso calculamos quanto cada venda traz, em média.</p>
+            </div>
+            <div class="campos campos-duplos">
+              <div class="pergunta"><label for="fat">Faturamento do mês</label><div class="valor"><span>R$</span><input id="fat" data-type="money" inputmode="decimal" placeholder="100.000,00" autocomplete="off"></div><span class="aviso">Preencha o faturamento.</span></div>
+              <div class="pergunta"><label for="vendas">Número de vendas no mês</label><div class="valor"><input id="vendas" data-type="int" inputmode="numeric" placeholder="2.000" autocomplete="off"></div><span class="aviso">Preencha o número de vendas.</span></div>
+            </div>
+          </fieldset>
+
+          <!-- 2 -->
+          <fieldset class="passo" data-passo="2" data-nome="Margem de contribuição" hidden>
+            <div class="passo-cabeca">
+              <p class="eyebrow">02 · Margem de contribuição</p>
+              <h2>Quanto custa, em média, entregar cada venda?</h2>
+              <p>Some o que só existe porque a venda aconteceu: produto, taxa do cartão, comissão, embalagem, frete.</p>
+            </div>
+            <div class="campos">
+              <div class="pergunta"><label for="cv">Custos variáveis por venda</label><div class="valor"><span>R$</span><input id="cv" data-type="money" inputmode="decimal" placeholder="30,00" autocomplete="off"></div><span class="aviso">Preencha os custos por venda (pode ser 0).</span></div>
+            </div>
+          </fieldset>
+
+          <!-- 3 -->
+          <fieldset class="passo" data-passo="3" data-nome="Ponto de equilíbrio" hidden>
+            <div class="passo-cabeca">
+              <p class="eyebrow">03 · Ponto de equilíbrio</p>
+              <h2>Quanto a empresa gasta por mês, vendendo ou não?</h2>
+              <p>Aluguel, salários, contador, sistemas, pró-labore.</p>
+            </div>
+            <div class="campos">
+              <div class="pergunta"><label for="cf">Custos fixos do mês</label><div class="valor"><span>R$</span><input id="cf" data-type="money" inputmode="decimal" placeholder="36.000,00" autocomplete="off"></div><span class="aviso">Preencha os custos fixos.</span></div>
+            </div>
+          </fieldset>
+
+          <!-- 4 -->
+          <fieldset class="passo" data-passo="4" data-nome="CAC" hidden>
+            <div class="passo-cabeca">
+              <p class="eyebrow">04 · CAC</p>
+              <h2>Quanto você investiu para trazer clientes novos?</h2>
+              <p>CAC é o custo de aquisição de cliente: anúncios, agência, comissão de venda, brindes.</p>
+            </div>
+            <div class="campos campos-duplos">
+              <div class="pergunta"><label for="mkt">Marketing e vendas no mês</label><div class="valor"><span>R$</span><input id="mkt" data-type="money" inputmode="decimal" placeholder="4.000,00" autocomplete="off"></div><span class="aviso">Preencha o investimento (pode ser 0).</span></div>
+              <div class="pergunta"><label for="novos">Clientes novos no mês</label><div class="valor"><input id="novos" data-type="int" inputmode="numeric" placeholder="100" autocomplete="off"></div><span class="aviso">Preencha os clientes novos.</span></div>
+            </div>
+          </fieldset>
+
+          <!-- 5 -->
+          <fieldset class="passo" data-passo="5" data-nome="Taxa de recompra" hidden>
+            <div class="passo-cabeca">
+              <p class="eyebrow">05 · Taxa de recompra</p>
+              <h2>Dos clientes de um período, quantos voltaram a comprar?</h2>
+              <p>Use sempre o mesmo prazo. Ex.: os clientes novos de um mês e quantos deles compraram de novo em 90 dias.</p>
+            </div>
+            <div class="campos campos-duplos">
+              <div class="pergunta"><label for="base">Clientes do período</label><div class="valor"><input id="base" data-type="int" inputmode="numeric" placeholder="100" autocomplete="off"></div><span class="aviso">Preencha os clientes do período.</span></div>
+              <div class="pergunta"><label for="volta">Desses, quantos voltaram</label><div class="valor"><input id="volta" data-type="int" inputmode="numeric" placeholder="35" autocomplete="off"></div><span class="aviso">Preencha quantos voltaram (pode ser 0).</span></div>
+            </div>
+          </fieldset>
+
+          <div class="passo-acoes">
+            <button class="btn-texto" type="button" id="voltar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Voltar</button>
+            <button class="btn btn-mostarda btn-grande" type="submit" id="avancar"><span id="avancar-texto">Próximo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           </div>
-        </article>
+          <p class="dica-enter">ou aperte Enter</p>
+        </form>
 
-        <!-- 03 -->
-        <article class="bloco" id="b3" data-bloco="3">
-          <header class="bloco-cabeca">
-            <p class="eyebrow bloco-num">03 · Ponto de equilíbrio</p>
-            <h3 class="subtitulo">Quanto vender por mês para não ter prejuízo.</h3>
-            <p class="alerta"><strong>Sinal de alerta</strong>Contratar, alugar ou abrir outra unidade sem saber esse número.</p>
-          </header>
-          <div class="linhas">
-            <div class="linha"><label for="cf">Custos fixos do mês</label><div class="valor"><span>R$</span><input id="cf" data-type="money" inputmode="decimal" value="36000"></div><span class="dica">Aluguel, salários, contador, sistemas, pró-labore…</span></div>
-            <div class="linha resultado"><span class="lbl">Ponto de equilíbrio (por mês)</span><span class="saida" id="o-pe">–</span><span class="conta">Conta: custos fixos ÷ margem de contribuição</span></div>
-            <div class="linha"><span class="lbl">Folga do faturamento atual</span><span class="saida" id="o-folga">–</span><span class="conta">Se ficar negativo, a empresa está vendendo abaixo do necessário</span></div>
+        <!-- Ao concluir o passo 5, o e-mail aparece aqui sozinho -->
+        <form class="passo portao" id="lead" novalidate hidden>
+          <div class="passo-cabeca">
+            <p class="eyebrow pronto">Respostas concluídas</p>
+            <h2>Sua análise está pronta.</h2>
+            <p>Coloque seu e-mail para ver o resultado de cada número e o que eles dizem sobre a sua empresa.</p>
           </div>
-        </article>
-
-        <!-- 04 -->
-        <article class="bloco" id="b4" data-bloco="4">
-          <header class="bloco-cabeca">
-            <p class="eyebrow bloco-num">04 · CAC</p>
-            <h3 class="subtitulo">Quanto custa conquistar um cliente novo.</h3>
-            <p>CAC é o custo de aquisição de cliente.</p>
-            <p class="alerta"><strong>Sinal de alerta</strong>O cliente novo custa mais do que deixa de margem nas primeiras compras.</p>
-          </header>
-          <div class="linhas">
-            <div class="linha"><label for="mkt">Investimento em marketing e vendas no mês</label><div class="valor"><span>R$</span><input id="mkt" data-type="money" inputmode="decimal" value="4000"></div><span class="dica">Anúncios, agência, comissão de venda, brindes…</span></div>
-            <div class="linha"><label for="novos">Clientes novos no mês</label><div class="valor"><input id="novos" data-type="int" inputmode="numeric" value="100"></div></div>
-            <div class="linha resultado"><span class="lbl">CAC (por cliente)</span><span class="saida" id="o-cac">–</span><span class="conta">Conta: investimento ÷ clientes novos</span></div>
-          </div>
-        </article>
-
-        <!-- 05 -->
-        <article class="bloco" id="b5" data-bloco="5">
-          <header class="bloco-cabeca">
-            <p class="eyebrow bloco-num">05 · Taxa de recompra</p>
-            <h3 class="subtitulo">A parte dos clientes que volta a comprar.</h3>
-            <p class="alerta"><strong>Sinal de alerta</strong>Investir para trazer cliente novo enquanto os antigos não voltam.</p>
-          </header>
-          <div class="linhas">
-            <div class="linha"><label for="base">Clientes do período</label><div class="valor"><input id="base" data-type="int" inputmode="numeric" value="100"></div><span class="dica">Ex.: os clientes novos de um mês</span></div>
-            <div class="linha"><label for="volta">Desses, quantos compraram de novo</label><div class="valor"><input id="volta" data-type="int" inputmode="numeric" value="35"></div><span class="dica">Use sempre o mesmo prazo, ex.: 90 dias</span></div>
-            <div class="linha resultado"><span class="lbl">Taxa de recompra</span><span class="saida" id="o-rec">–</span><span class="conta">Conta: clientes que voltaram ÷ clientes do período</span></div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== Sua análise ===== -->
-  <section class="secao secao-escura cta-dor escuro" id="analise" aria-labelledby="titulo-analise">
-    <div class="container cta-dor-grid">
-      <div class="cta-dor-texto">
-        <p class="eyebrow">Sua análise</p>
-        <h2 class="titulo titulo-barra" id="titulo-analise">Veja o que os seus números dizem.</h2>
-        <p class="lead" id="analise-lead">Coloque seu e-mail e liberamos os resultados de cada bloco e a leitura de cada número, item por item.</p>
-      </div>
-
-      <div class="cta-dor-acao">
-        <form class="form-lead" id="lead" novalidate>
-          <p class="form-titulo">Liberar minha análise</p>
           <div class="campo"><label for="nome">Nome <small>(opcional)</small></label><input type="text" id="nome" autocomplete="name" placeholder="Seu nome"></div>
           <div class="campo"><label for="email">E-mail</label><input type="email" id="email" autocomplete="email" placeholder="seuemail@empresa.com.br" required></div>
           <p class="erro" id="erro" hidden>Confira o e-mail: parece que falta alguma parte (ex.: nome@empresa.com).</p>
-          <button class="btn btn-mostarda btn-grande" type="submit">Ver minha análise <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <button class="btn btn-mostarda btn-grande" type="submit">Liberar minha análise<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           <p class="fino">Usamos seu e-mail só para a Saint Paul Jr entrar em contato sobre a sua análise.</p>
+          <button class="btn-texto" type="button" id="revisar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Revisar respostas</button>
         </form>
 
-        <div class="numeros" id="juntos" hidden aria-live="polite">
-          <div class="numero"><span>Sobra de cada venda</span><b id="t-sobra">–</b><small>depois dos custos variáveis</small></div>
-          <div class="numero"><span>Cliente novo</span><b id="t-cac">–</b><small>custo para conquistar um</small></div>
-          <div class="numero"><span>Para se pagar</span><b id="t-compras">–</b><small>compras do cliente novo</small></div>
-          <div class="numero"><span>Recompra</span><b id="t-rec">–</b><small>dos clientes voltam</small></div>
+        <!-- Depois do e-mail: o resumo -->
+        <div class="passo" id="resumo" hidden>
+          <div class="passo-cabeca">
+            <p class="eyebrow pronto">Sua análise</p>
+            <h2>Os números que mais pesam.</h2>
+          </div>
+          <div class="numeros">
+            <div class="numero"><span>Sobra por venda</span><b id="t-sobra">–</b><small>depois dos custos variáveis</small></div>
+            <div class="numero"><span>Cliente novo</span><b id="t-cac">–</b><small>custo para conquistar um</small></div>
+            <div class="numero"><span>Para se pagar</span><b id="t-compras">–</b><small>compras do cliente novo</small></div>
+            <div class="numero"><span>Recompra</span><b id="t-rec">–</b><small>dos clientes voltam</small></div>
+          </div>
+          <div class="resumo-acoes">
+            <a class="btn btn-mostarda" href="#resultado">Ver a análise completa<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+            <button class="btn-texto" type="button" data-refazer>Refazer com outros números</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="ponto-cortado" aria-hidden="true"></div>
   </section>
 
-  <!-- ===== Item por item (aparece depois do e-mail) ===== -->
-  <section class="secao" id="leitura" hidden aria-labelledby="titulo-leitura">
+  <!-- ===== Resultado (aparece depois do e-mail) ===== -->
+  <section class="secao secao-textura" id="resultado" hidden aria-labelledby="titulo-resultado">
+    <div class="ponto-cortado ponto-cortado-topo" aria-hidden="true"></div>
     <div class="container">
       <div class="abre">
-        <p class="eyebrow" id="titulo-leitura">O que os números mostram juntos</p>
+        <p class="eyebrow" id="titulo-resultado">O que os números mostram juntos</p>
         <p id="r-abre"></p>
       </div>
-      <ul class="itens" id="r-itens" role="list"></ul>
+      <ul class="cartoes" id="r-cartoes" role="list"></ul>
+      <button class="btn-texto refazer" type="button" data-refazer><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Refazer com outros números</button>
+    </div>
+  </section>
+
+  <!-- ===== Por que esses 5 ===== -->
+  <section class="secao" id="numeros" aria-labelledby="titulo-numeros">
+    <div class="container">
+      <div class="secao-cabeca">
+        <p class="eyebrow">Por que esses 5</p>
+        <h2 class="titulo titulo-barra" id="titulo-numeros">Olhando só o faturamento, eles não aparecem.</h2>
+      </div>
+      <ul class="explica" role="list">
+        <li><span class="ponto" aria-hidden="true"></span><h3>Ticket médio</h3><p>Quanto cada venda traz, em média.</p><p class="alerta"><strong>Sinal de alerta</strong>O ticket cai mês a mês enquanto os custos sobem.</p></li>
+        <li><span class="ponto" aria-hidden="true"></span><h3>Margem de contribuição</h3><p>O que sobra de cada venda depois dos custos que variam com ela.</p><p class="alerta"><strong>Sinal de alerta</strong>Dar desconto sem saber quanto ele come da sobra de cada venda.</p></li>
+        <li><span class="ponto" aria-hidden="true"></span><h3>Ponto de equilíbrio</h3><p>Quanto vender por mês para não ter prejuízo.</p><p class="alerta"><strong>Sinal de alerta</strong>Contratar, alugar ou abrir outra unidade sem saber esse número.</p></li>
+        <li><span class="ponto" aria-hidden="true"></span><h3>CAC</h3><p>Quanto custa conquistar um cliente novo.</p><p class="alerta"><strong>Sinal de alerta</strong>O cliente novo custa mais do que deixa de margem nas primeiras compras.</p></li>
+        <li><span class="ponto" aria-hidden="true"></span><h3>Taxa de recompra</h3><p>A parte dos clientes que volta a comprar.</p><p class="alerta"><strong>Sinal de alerta</strong>Investir para trazer cliente novo enquanto os antigos não voltam.</p></li>
+      </ul>
+      <a class="btn btn-mostarda explica-acao" href="#calculadora" id="ir-calc">Calcular os meus 5 números<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></a>
     </div>
   </section>
 
@@ -866,7 +786,7 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
       <p class="eyebrow">Próximo passo</p>
       <h2 class="titulo titulo-barra" id="titulo-proximo">Quer melhorar esses números?</h2>
       <p class="lead">A Saint Paul Jr é a consultoria estratégica da Escola de Negócios Saint Paul. Olhamos esses números com você, dentro da sua operação, e montamos o plano para melhorar cada um, com etapas e prazo.</p>
-      <a class="btn btn-mostarda btn-grande" id="whats" data-whats href="https://wa.me/556281770062" target="_blank" rel="noopener">Conversar sobre a minha análise <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="btn btn-mostarda btn-grande" id="whats" data-whats href="https://wa.me/556281770062" target="_blank" rel="noopener">Conversar sobre a minha análise<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       <p class="fino">Ou fale com a gente no Instagram <a href="https://www.instagram.com/saintpauljrr/" target="_blank" rel="noopener">@saintpauljrr</a>.</p>
     </div>
     <div class="ponto-cortado" aria-hidden="true"></div>
@@ -883,24 +803,6 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
         <a href="mailto:saintpauljr29@gmail.com">saintpauljr29@gmail.com</a>
         <a data-whats href="https://wa.me/556281770062" target="_blank" rel="noopener">+55 (62) 8177-0062</a>
       </p>
-    </div>
-    <div>
-      <h2 class="rodape-titulo">Calculadora</h2>
-      <ul role="list">
-        <li><a href="#b1">Ticket médio</a></li>
-        <li><a href="#b2">Margem de contribuição</a></li>
-        <li><a href="#b3">Ponto de equilíbrio</a></li>
-        <li><a href="#b4">CAC</a></li>
-        <li><a href="#b5">Taxa de recompra</a></li>
-      </ul>
-    </div>
-    <div>
-      <h2 class="rodape-titulo">Saint Paul Jr</h2>
-      <ul role="list">
-        <li><a href="https://joaobusoadm-a11y.github.io/site-saint-paul-jr/">Site</a></li>
-        <li><a href="https://joaobusoadm-a11y.github.io/site-saint-paul-jr/servicos.html">Serviços</a></li>
-        <li><a href="https://joaobusoadm-a11y.github.io/site-saint-paul-jr/contato.html">Contato</a></li>
-      </ul>
     </div>
     <div>
       <h2 class="rodape-titulo">Redes</h2>
@@ -928,15 +830,19 @@ h1, h2, h3, h4, p, ul, ol, figure { margin: 0; }
    Vazio = a página só libera a análise e não salva nada. */
 const ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxFaH2qpoyBi_LIHkpxiYXGnOtUDrJ829e73uESoWQpktK2xSDzNEHihe9J7Gc2PMpcOQ/exec";
 
-/* WhatsApp da SPJ (mesmo número do site) */
+/* WhatsApp da SPJ */
 const WHATSAPP = "556281770062";
 const MSG_GERAL = "Olá, Saint Paul Jr! Fiz a calculadora dos 5 números e gostaria de conversar sobre os números da minha empresa.";
 
 const $ = (id) => document.getElementById(id);
 const brl = (v) => isFinite(v) ? v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "–";
 const pct = (v) => isFinite(v) ? Math.round(v * 100).toLocaleString("pt-BR") + "%" : "–";
-const CAMPOS = ["fat", "vendas", "cv", "desc", "cf", "mkt", "novos", "base", "volta"];
+const CAMPOS = ["fat", "vendas", "cv", "cf", "mkt", "novos", "base", "volta"];
+const PASSOS = 5;
 const linkWhats = (msg) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const comMouse = window.matchMedia("(hover: hover)").matches;
+const rolar = (el) => el.scrollIntoView({ behavior: semMovimento ? "auto" : "smooth", block: "start" });
 
 /* ---------- Números ---------- */
 function parse(str) {
@@ -948,99 +854,180 @@ function parse(str) {
   return isFinite(n) ? n : 0;
 }
 function fmtInput(el) {
-  const v = parse(el.value), t = el.dataset.type;
-  if (t === "money") el.value = v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  else if (t === "int") el.value = Math.round(v).toLocaleString("pt-BR");
-  else el.value = v.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+  if (el.value.trim() === "") return;
+  const v = parse(el.value);
+  if (el.dataset.type === "money") el.value = v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  else el.value = Math.round(v).toLocaleString("pt-BR");
 }
 const val = (id) => parse($(id).value);
 const div = (a, b) => b ? a / b : 0;   // mesmo SEERRO(...;0) da planilha
 
 let R = {};
-let liberado = false;
-
-function escrever(id, texto) {
-  const el = $(id);
-  if (el.textContent === texto) return;
-  el.textContent = texto;
-  if (liberado) { el.classList.remove("acendeu"); void el.offsetWidth; el.classList.add("acendeu"); }
-}
-
 function calc() {
-  const fat = val("fat"), vendas = val("vendas"), cv = val("cv"), desc = val("desc") / 100,
+  const fat = val("fat"), vendas = val("vendas"), cv = val("cv"),
         cf = val("cf"), mkt = val("mkt"), novos = val("novos"), base = val("base"), volta = val("volta");
   const ticket = div(fat, vendas);
   const sobra = ticket - cv;
   const margem = div(sobra, ticket);
-  const sobraDesc = ticket * (1 - desc) - cv;
-  const queda = sobra ? 1 - sobraDesc / sobra : 0;
   const pe = margem > 0 ? cf / margem : 0;
   const folga = fat - pe;
   const cac = div(mkt, novos);
   const rec = div(volta, base);
   const compras = sobra > 0 ? Math.ceil(cac / sobra) : 0;
-  R = { fat, vendas, cv, desc, cf, mkt, novos, base, volta, ticket, sobra, margem, sobraDesc, queda, pe, folga, cac, rec, compras };
-
-  if (!liberado) {
-    document.querySelectorAll(".saida").forEach((o) => { o.textContent = "Liberado no final"; o.classList.remove("negativo"); });
-    return;
-  }
-  escrever("o-ticket", brl(ticket));
-  escrever("o-sobra", brl(sobra));
-  escrever("o-margem", pct(margem));
-  escrever("o-sobradesc", brl(sobraDesc));
-  escrever("o-queda", pct(queda));
-  escrever("o-pe", margem > 0 ? brl(pe) : "Sem margem");
-  escrever("o-folga", margem > 0 ? brl(folga) : "–");
-  $("o-folga").classList.toggle("negativo", margem > 0 && folga < 0);
-  escrever("o-cac", brl(cac));
-  escrever("o-rec", pct(rec));
-
-  escrever("t-sobra", brl(sobra));
-  escrever("t-cac", brl(cac));
-  escrever("t-compras", sobra > 0 ? (compras === 1 ? "1 compra" : `${compras} compras`) : "–");
-  escrever("t-rec", pct(rec));
-
-  renderAnalise();
+  R = { fat, vendas, cv, cf, mkt, novos, base, volta, ticket, sobra, margem, pe, folga, cac, rec, compras };
+  return R;
 }
 
-function item(sit, titulo, texto) {
+/* ---------- Passo a passo ---------- */
+let atual = 1;
+let maiorVisto = 1;
+
+const camposDo = (n) => [...document.querySelectorAll(`.passo[data-passo="${n}"] input[data-type]`)];
+
+function animar(el, classe) {
+  el.classList.remove("indo", "vindo");
+  if (semMovimento || !classe) return;
+  void el.offsetWidth;
+  el.classList.add(classe);
+}
+
+function mostrarPasso(n, direcao) {
+  atual = n;
+  maiorVisto = Math.max(maiorVisto, n);
+  document.querySelectorAll("#calc-form .passo").forEach((p) => {
+    const este = +p.dataset.passo === n;
+    p.hidden = !este;
+    if (este) animar(p, direcao > 0 ? "indo" : direcao < 0 ? "vindo" : "");
+  });
+  const passo = document.querySelector(`.passo[data-passo="${n}"]`);
+  $("passo-rotulo").innerHTML = `Passo <b>${n}</b> de ${PASSOS}`;
+  $("passo-nome").textContent = passo.dataset.nome;
+  $("voltar").hidden = n === 1;
+  $("avancar-texto").textContent = n === PASSOS ? "Concluir" : "Próximo";
+  atualizarTrilha(n);
+}
+
+function atualizarTrilha(n) {
+  document.querySelectorAll(".trilha button").forEach((b) => {
+    const i = +b.dataset.ir;
+    b.classList.toggle("feito", i < n);
+    if (i === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    b.disabled = i > maiorVisto;
+  });
+  $("trilha-cheia").style.setProperty("--feito", Math.min(n - 1, PASSOS - 1) / (PASSOS - 1));
+}
+
+function marcarFaltas(n) {
+  let primeiro = null;
+  camposDo(n).forEach((el) => {
+    const falta = el.value.trim() === "";
+    el.closest(".pergunta").classList.toggle("falta", falta);
+    if (falta && !primeiro) primeiro = el;
+  });
+  if (primeiro) primeiro.focus();
+  return !primeiro;
+}
+
+function focarPrimeiro(n) {
+  const el = camposDo(n)[0];
+  if (el && comMouse) el.focus({ preventScroll: true });
+}
+
+/* No celular, o cartão volta para o topo da tela a cada passo */
+function trazerCartao() {
+  const topo = $("calculadora").getBoundingClientRect().top;
+  if (topo < 70 || topo > window.innerHeight * 0.45) rolar($("calculadora"));
+}
+
+function mostrarSo(id) {
+  ["calc-form", "lead", "resumo"].forEach((k) => { $(k).hidden = k !== id; });
+}
+
+/* Ao concluir o último passo, o pedido de e-mail aparece sozinho no lugar das perguntas */
+function abrirPortao() {
+  mostrarSo("lead");
+  $("progresso").hidden = false;
+  atualizarTrilha(PASSOS + 1);
+  $("passo-rotulo").textContent = "Tudo respondido";
+  $("passo-nome").textContent = "Falta só o e-mail";
+  animar($("lead"), "indo");
+  trazerCartao();
+  if (comMouse) $("email").focus({ preventScroll: true });
+}
+
+$("calc-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  camposDo(atual).forEach(fmtInput);
+  if (!marcarFaltas(atual)) return;
+  if (atual < PASSOS) {
+    mostrarPasso(atual + 1, 1);
+    focarPrimeiro(atual);
+    trazerCartao();
+  } else {
+    abrirPortao();
+  }
+});
+
+$("voltar").addEventListener("click", () => { mostrarPasso(atual - 1, -1); focarPrimeiro(atual); });
+$("revisar").addEventListener("click", () => { mostrarSo("calc-form"); mostrarPasso(PASSOS, -1); });
+document.querySelectorAll(".trilha button").forEach((b) => b.addEventListener("click", () => {
+  const n = +b.dataset.ir;
+  if (n > maiorVisto) return;
+  mostrarSo("calc-form");
+  mostrarPasso(n, n >= atual ? 1 : -1);
+  focarPrimeiro(n);
+}));
+
+document.querySelectorAll("input[data-type]").forEach((el) => {
+  el.addEventListener("input", () => el.closest(".pergunta").classList.remove("falta"));
+  el.addEventListener("blur", () => fmtInput(el));
+  el.addEventListener("focus", () => el.select());
+});
+
+/* ---------- Resultado ---------- */
+function cartao(num, titulo, valor, detalhe, sit, texto) {
   const cls = { ok: "s-ok", atencao: "s-atencao", alerta: "s-alerta" }[sit];
   const lbl = { ok: "Ok", atencao: "Atenção", alerta: "Alerta" }[sit];
-  return `<li><span class="selo ${cls}">${lbl}</span><h3>${titulo}</h3><p>${texto}</p></li>`;
+  return `<li class="cartao"><p class="eyebrow">${num} · ${titulo}</p><p class="cartao-valor">${valor}</p>${detalhe ? `<p class="cartao-detalhe">${detalhe}</p>` : ""}<span class="selo ${cls}">${lbl}</span><p>${texto}</p></li>`;
 }
 
-function renderAnalise() {
-  const r = R;
+function renderResultado() {
+  const r = calc();
   let abre;
   if (r.sobra <= 0) abre = "Cada venda não deixa sobra: revise preço e custos variáveis antes de investir em clientes novos.";
   else if (r.compras <= 1) abre = "O cliente novo se paga já na primeira compra.";
   else abre = `O cliente novo precisa comprar ${r.compras} vezes para se pagar, e ${Math.round(r.rec * 100)}% dos clientes voltam. Olhando só o faturamento, isso não aparece.`;
   $("r-abre").textContent = abre;
 
-  const it = [];
-  it.push(item("ok", "Ticket médio",
-    `Cada venda traz em média ${brl(r.ticket)}. Vale acompanhar mês a mês: se cair enquanto os custos sobem, a margem aperta.`));
+  const n = (v) => v.toLocaleString("pt-BR");
+  const c = [];
+  c.push(cartao("01", "Ticket médio", brl(r.ticket), `${brl(r.fat)} em ${n(r.vendas)} vendas`, "ok",
+    "Vale acompanhar mês a mês: se o ticket cair enquanto os custos sobem, a margem aperta."));
 
-  if (r.sobra <= 0) it.push(item("alerta", "Margem de contribuição",
-    `Os custos variáveis (${brl(r.cv)}) são iguais ou maiores que o ticket médio. Cada venda está dando prejuízo antes mesmo dos custos fixos.`));
-  else it.push(item(r.queda >= 0.25 ? "atencao" : "ok", "Margem de contribuição",
-    `Sobram ${brl(r.sobra)} de cada venda (${pct(r.margem)}). Um desconto de ${pct(r.desc)} reduz essa sobra em ${pct(r.queda)}.`));
+  if (r.sobra <= 0) c.push(cartao("02", "Margem de contribuição", pct(r.margem), `Sobra por venda: <span class="negativo">${brl(r.sobra)}</span>`, "alerta",
+    `Os custos variáveis (${brl(r.cv)}) são iguais ou maiores que o ticket médio. Cada venda dá prejuízo antes mesmo dos custos fixos.`));
+  else c.push(cartao("02", "Margem de contribuição", pct(r.margem), `Sobra por venda: ${brl(r.sobra)}`, r.margem < 0.25 ? "atencao" : "ok",
+    `De cada R$ 100 vendidos, sobram ${brl(r.margem * 100)} para pagar os custos fixos e dar lucro.${r.margem < 0.25 ? " É pouca margem para dar desconto." : ""}`));
 
-  if (r.margem <= 0) it.push(item("alerta", "Ponto de equilíbrio", "Sem margem positiva não existe um volume de vendas que cubra os custos fixos."));
-  else if (r.folga < 0) it.push(item("alerta", "Ponto de equilíbrio",
-    `Para não ter prejuízo, a empresa precisa faturar ${brl(r.pe)} por mês. Hoje faltam ${brl(-r.folga)}.`));
-  else it.push(item(div(r.folga, r.pe) < 0.15 ? "atencao" : "ok", "Ponto de equilíbrio",
-    `O mínimo para não ter prejuízo é ${brl(r.pe)} por mês. O faturamento atual está ${brl(r.folga)} acima disso${div(r.folga, r.pe) < 0.15 ? ", uma folga pequena" : ""}.`));
+  if (r.margem <= 0) c.push(cartao("03", "Ponto de equilíbrio", "Sem margem", "", "alerta", "Sem margem positiva não existe um volume de vendas que cubra os custos fixos."));
+  else if (r.folga < 0) c.push(cartao("03", "Ponto de equilíbrio", brl(r.pe), `Faltam <span class="negativo">${brl(-r.folga)}</span> por mês`, "alerta",
+    `Para não ter prejuízo, a empresa precisa faturar ${brl(r.pe)} por mês. Hoje fatura ${brl(r.fat)}.`));
+  else c.push(cartao("03", "Ponto de equilíbrio", brl(r.pe), `Folga atual: ${brl(r.folga)}`, div(r.folga, r.pe) < 0.15 ? "atencao" : "ok",
+    `É o mínimo por mês para não ter prejuízo. O faturamento atual está ${brl(r.folga)} acima disso${div(r.folga, r.pe) < 0.15 ? ", uma folga pequena" : ""}.`));
 
-  if (r.sobra > 0) it.push(item(r.cac > r.sobra ? "atencao" : "ok", "CAC",
-    `Cada cliente novo custa ${brl(r.cac)}. ${r.compras <= 1 ? "Ele se paga já na primeira compra." : `Ele só se paga depois de ${r.compras} compras.`}`));
-  else it.push(item("alerta", "CAC", `Cada cliente novo custa ${brl(r.cac)}, e como a venda não deixa sobra, ele nunca se paga.`));
+  if (r.sobra > 0) c.push(cartao("04", "CAC", brl(r.cac), r.compras <= 1 ? "Se paga na 1ª compra" : `Se paga em ${r.compras} compras`, r.cac > r.sobra ? "atencao" : "ok",
+    r.compras <= 1 ? "O cliente novo se paga já na primeira compra." : `O cliente novo só se paga depois de ${r.compras} compras: até lá, ele custa mais do que deixa.`));
+  else c.push(cartao("04", "CAC", brl(r.cac), "Não se paga", "alerta", "Como a venda não deixa sobra, o cliente novo nunca se paga."));
 
-  it.push(item(r.compras > 1 && r.rec < 0.5 ? "atencao" : "ok", "Taxa de recompra",
-    `${pct(r.rec)} dos clientes voltaram a comprar.${r.compras > 1 ? ` Como o cliente novo precisa de ${r.compras} compras para se pagar, quem não volta sai no prejuízo.` : ""}`));
+  c.push(cartao("05", "Taxa de recompra", pct(r.rec), `${n(r.volta)} de ${n(r.base)} clientes voltaram`, r.compras > 1 && r.rec < 0.5 ? "atencao" : "ok",
+    r.compras > 1 ? `Como o cliente novo precisa de ${r.compras} compras para se pagar, quem não volta sai no prejuízo.` : "Cliente que volta compra sem custar um novo CAC."));
 
-  $("r-itens").innerHTML = it.join("");
+  $("r-cartoes").innerHTML = c.join("");
+
+  $("t-sobra").textContent = brl(r.sobra);
+  $("t-cac").textContent = brl(r.cac);
+  $("t-compras").textContent = r.sobra > 0 ? (r.compras === 1 ? "1 compra" : `${r.compras} compras`) : "–";
+  $("t-rec").textContent = pct(r.rec);
 }
 
 /* Link que reabre a calculadora com os números da pessoa e a análise já liberada (vai para a planilha) */
@@ -1051,20 +1038,49 @@ function linkAnalise() {
   return location.origin + location.pathname + "?" + p.toString();
 }
 
-function liberar() {
-  liberado = true;
-  document.body.classList.remove("bloqueado");
-  $("lead").hidden = true;
-  $("juntos").hidden = false;
-  $("leitura").hidden = false;
-  $("analise-lead").textContent = "Os resultados de cada bloco já estão abertos acima. Aqui estão os números que mais pesam, e logo abaixo a leitura item por item.";
-  calc();
-  [$("juntos"), $("leitura")].forEach((el) => el.classList.add("entrando"));
-  setTimeout(() => [$("juntos"), $("leitura")].forEach((el) => el.classList.remove("entrando")), 1400);
-  const msg = `Olá, Saint Paul Jr! Fiz a calculadora dos 5 números e quero conversar sobre a minha análise: ${linkAnalise()}`;
-  $("whats").href = linkWhats(msg);
-  iniciarEmendas(); // a seção nova muda a emenda entre a análise e o próximo passo
+function liberar(descer) {
+  renderResultado();
+  mostrarSo("resumo");
+  $("progresso").hidden = true;
+  $("resultado").hidden = false;
+  $("ir-calc").hidden = true;
+  [$("resumo"), $("resultado")].forEach((el) => el.classList.add("entrando"));
+  setTimeout(() => [$("resumo"), $("resultado")].forEach((el) => el.classList.remove("entrando")), 1400);
+  $("whats").href = linkWhats(`Olá, Saint Paul Jr! Fiz a calculadora dos 5 números e quero conversar sobre a minha análise: ${linkAnalise()}`);
+  iniciarEmendas();
+  if (descer) trazerCartao();
 }
+
+$("lead").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = $("email").value.trim();
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  $("erro").hidden = ok;
+  if (!ok) { $("email").focus(); return; }
+  liberar(true);
+  if (ENDPOINT_URL) {
+    const dados = new URLSearchParams();
+    dados.append("nome", $("nome").value.trim());
+    dados.append("email", email);
+    dados.append("link", linkAnalise());
+    ["fat", "vendas", "ticket", "cv", "margem", "cf", "pe", "folga", "mkt", "novos", "cac", "base", "volta", "rec", "compras"]
+      .forEach((k) => dados.append(k, R[k]));
+    fetch(ENDPOINT_URL, { method: "POST", mode: "no-cors", keepalive: true, body: dados }).catch(() => {});
+  }
+});
+
+/* Refazer: volta ao passo 1 com os números de antes, para ajustar */
+document.querySelectorAll("[data-refazer]").forEach((b) => b.addEventListener("click", () => {
+  $("resultado").hidden = true;
+  $("ir-calc").hidden = false;
+  $("progresso").hidden = false;
+  mostrarSo("calc-form");
+  maiorVisto = PASSOS;
+  mostrarPasso(1, -1);
+  iniciarEmendas();
+  rolar($("calculadora"));
+  focarPrimeiro(1);
+}));
 
 /* ---------- Comportamento do site (js/main.js da SPJ) ---------- */
 
@@ -1098,8 +1114,7 @@ function acrescentarEmenda(secao, lado, cor) {
 
 /* Revelar ao rolar: irmãos entram um pouco depois do outro */
 function iniciarAnimacoes() {
-  const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const grupos = [".secao-cabeca", ".bloco", ".cta-dor-grid > *", ".cta-final-conteudo", ".rodape-grid > *"];
+  const grupos = [".secao-cabeca", ".explica > li", ".cta-final-conteudo", ".rodape-grid > *"];
   const alvos = document.querySelectorAll(grupos.join(","));
   if (semMovimento || !("IntersectionObserver" in window)) return;
   alvos.forEach((el) => {
@@ -1117,22 +1132,9 @@ function iniciarAnimacoes() {
   alvos.forEach((el) => observador.observe(el));
 }
 
-/* A linha de cada número na capa enche de mostarda depois que o bloco dele passa pela tela */
-function iniciarPassos() {
-  if (!("IntersectionObserver" in window)) return;
-  const obs = new IntersectionObserver((entradas) => {
-    entradas.forEach((e) => {
-      if (!e.isIntersecting) return;
-      const link = document.querySelector(`.capa-numeros a[data-passo="${e.target.dataset.bloco}"]`);
-      if (link) link.classList.add("feito");
-    });
-  }, { threshold: 0.5 });
-  document.querySelectorAll("[data-bloco]").forEach((b) => obs.observe(b));
-}
-
 /* Botão flutuante só aparece depois que a capa sobe acima da metade da tela */
 function iniciarWhatsapp() {
-  document.querySelectorAll("[data-whats]").forEach((a) => { if (a.id !== "whats" || !liberado) a.href = linkWhats(MSG_GERAL); });
+  document.querySelectorAll("[data-whats]").forEach((a) => { a.href = linkWhats(MSG_GERAL); });
   const flutuante = document.querySelector("[data-whatsapp-flutuante]");
   const capa = document.querySelector("main > section");
   if (!("IntersectionObserver" in window)) { flutuante.classList.remove("escondido"); return; }
@@ -1256,44 +1258,16 @@ function montarRede(canvas) {
 }
 
 /* ---------- Início ---------- */
-
-/* Números vindos do link (?fat=...&analise=1) */
-const q = new URLSearchParams(location.search);
-CAMPOS.forEach((k) => { if (q.has(k)) $(k).value = String(parse(q.get(k))).replace(".", ","); });
-
-document.querySelectorAll("input[data-type]").forEach((el) => {
-  fmtInput(el);
-  el.addEventListener("input", calc);
-  el.addEventListener("blur", () => { fmtInput(el); calc(); });
-  el.addEventListener("focus", () => el.select());
-});
-
-$("lead").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = $("email").value.trim();
-  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
-  $("erro").hidden = ok;
-  if (!ok) { $("email").focus(); return; }
-  liberar();
-  $("analise").scrollIntoView({ behavior: "smooth", block: "start" });
-  if (ENDPOINT_URL) {
-    const dados = new URLSearchParams();
-    dados.append("nome", $("nome").value.trim());
-    dados.append("email", email);
-    dados.append("link", linkAnalise());
-    ["fat", "vendas", "ticket", "cv", "margem", "cf", "pe", "folga", "mkt", "novos", "cac", "base", "volta", "rec", "compras"]
-      .forEach((k) => dados.append(k, R[k]));
-    fetch(ENDPOINT_URL, { method: "POST", mode: "no-cors", keepalive: true, body: dados }).catch(() => {});
-  }
-});
-
 document.querySelectorAll("[data-ano]").forEach((el) => { el.textContent = new Date().getFullYear(); });
-calc();
 iniciarWhatsapp();
 document.querySelectorAll("[data-rede]").forEach(montarRede);
 iniciarAnimacoes();
-iniciarPassos();
-if (q.get("analise") === "1") liberar();
+mostrarPasso(1);
+
+/* Números vindos do link (?fat=...&analise=1): abre a análise direto */
+const q = new URLSearchParams(location.search);
+CAMPOS.forEach((k) => { if (q.has(k)) { $(k).value = String(parse(q.get(k))).replace(".", ","); fmtInput($(k)); } });
+if (q.get("analise") === "1" && CAMPOS.every((k) => q.has(k))) { maiorVisto = PASSOS; liberar(false); }
 else iniciarEmendas();
 if (document.fonts) document.fonts.ready.then(() => iniciarEmendas());
 </script>
