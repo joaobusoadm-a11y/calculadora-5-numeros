@@ -282,7 +282,6 @@ fieldset { border: 0; padding: 0; min-width: 0; }
   border: 0; background: transparent;
   cursor: pointer;
 }
-.trilha button:disabled { cursor: default; }
 .trilha button::before {
   content: "";
   width: var(--t); height: var(--t);
@@ -878,11 +877,14 @@ function calc() {
   return R;
 }
 
-/* ---------- Passo a passo ---------- */
+/* ---------- Passo a passo ----------
+   As etapas são independentes: dá para abrir qualquer uma, em qualquer ordem,
+   e avançar sem preencher. O e-mail aparece quando as 5 estiverem respondidas. */
 let atual = 1;
-let maiorVisto = 1;
 
 const camposDo = (n) => [...document.querySelectorAll(`.passo[data-passo="${n}"] input[data-type]`)];
+const completo = (n) => camposDo(n).every((el) => el.value.trim() !== "");
+const incompletos = () => Array.from({ length: PASSOS }, (_, i) => i + 1).filter((n) => !completo(n));
 
 function animar(el, classe) {
   el.classList.remove("indo", "vindo");
@@ -893,7 +895,6 @@ function animar(el, classe) {
 
 function mostrarPasso(n, direcao) {
   atual = n;
-  maiorVisto = Math.max(maiorVisto, n);
   document.querySelectorAll("#calc-form .passo").forEach((p) => {
     const este = +p.dataset.passo === n;
     p.hidden = !este;
@@ -903,18 +904,27 @@ function mostrarPasso(n, direcao) {
   $("passo-rotulo").innerHTML = `Passo <b>${n}</b> de ${PASSOS}`;
   $("passo-nome").textContent = passo.dataset.nome;
   $("voltar").hidden = n === 1;
-  $("avancar-texto").textContent = n === PASSOS ? "Concluir" : "Próximo";
   atualizarTrilha(n);
 }
 
+/* Texto do botão: "Concluir" quando só falta (ou não falta) esta etapa */
+function atualizarBotao() {
+  const faltam = incompletos().filter((n) => n !== atual);
+  let texto = "Próximo";
+  if (faltam.length === 0) texto = "Concluir";
+  else if (atual === PASSOS) texto = "Ver o que falta";
+  $("avancar-texto").textContent = texto;
+}
+
+/* Cada ponto acende quando a etapa dele está respondida, sem depender das outras */
 function atualizarTrilha(n) {
   document.querySelectorAll(".trilha button").forEach((b) => {
     const i = +b.dataset.ir;
-    b.classList.toggle("feito", i < n);
+    b.classList.toggle("feito", completo(i));
     if (i === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
-    b.disabled = i > maiorVisto;
   });
-  $("trilha-cheia").style.setProperty("--feito", Math.min(n - 1, PASSOS - 1) / (PASSOS - 1));
+  $("trilha-cheia").style.setProperty("--feito", incompletos().length === 0 ? 1 : 0);
+  atualizarBotao();
 }
 
 function marcarFaltas(n) {
@@ -924,12 +934,12 @@ function marcarFaltas(n) {
     el.closest(".pergunta").classList.toggle("falta", falta);
     if (falta && !primeiro) primeiro = el;
   });
-  if (primeiro) primeiro.focus();
+  if (primeiro && comMouse) primeiro.focus({ preventScroll: true });
   return !primeiro;
 }
 
 function focarPrimeiro(n) {
-  const el = camposDo(n)[0];
+  const el = camposDo(n).find((c) => c.value.trim() === "") || camposDo(n)[0];
   if (el && comMouse) el.focus({ preventScroll: true });
 }
 
@@ -943,11 +953,11 @@ function mostrarSo(id) {
   ["calc-form", "lead", "resumo"].forEach((k) => { $(k).hidden = k !== id; });
 }
 
-/* Ao concluir o último passo, o pedido de e-mail aparece sozinho no lugar das perguntas */
+/* Com as 5 etapas respondidas, o pedido de e-mail aparece sozinho no lugar das perguntas */
 function abrirPortao() {
   mostrarSo("lead");
   $("progresso").hidden = false;
-  atualizarTrilha(PASSOS + 1);
+  atualizarTrilha(0);
   $("passo-rotulo").textContent = "Tudo respondido";
   $("passo-nome").textContent = "Falta só o e-mail";
   animar($("lead"), "indo");
@@ -958,28 +968,34 @@ function abrirPortao() {
 $("calc-form").addEventListener("submit", (e) => {
   e.preventDefault();
   camposDo(atual).forEach(fmtInput);
-  if (!marcarFaltas(atual)) return;
+  const faltam = incompletos();
+  if (faltam.length === 0) { abrirPortao(); return; }
   if (atual < PASSOS) {
     mostrarPasso(atual + 1, 1);
-    focarPrimeiro(atual);
-    trazerCartao();
   } else {
-    abrirPortao();
+    // Na última etapa, leva para a primeira que ainda falta e mostra o que preencher
+    const destino = faltam[0];
+    mostrarPasso(destino, destino >= atual ? 1 : -1);
+    marcarFaltas(destino);
   }
+  focarPrimeiro(atual);
+  trazerCartao();
 });
 
 $("voltar").addEventListener("click", () => { mostrarPasso(atual - 1, -1); focarPrimeiro(atual); });
 $("revisar").addEventListener("click", () => { mostrarSo("calc-form"); mostrarPasso(PASSOS, -1); });
 document.querySelectorAll(".trilha button").forEach((b) => b.addEventListener("click", () => {
   const n = +b.dataset.ir;
-  if (n > maiorVisto) return;
   mostrarSo("calc-form");
   mostrarPasso(n, n >= atual ? 1 : -1);
   focarPrimeiro(n);
 }));
 
 document.querySelectorAll("input[data-type]").forEach((el) => {
-  el.addEventListener("input", () => el.closest(".pergunta").classList.remove("falta"));
+  el.addEventListener("input", () => {
+    el.closest(".pergunta").classList.remove("falta");
+    if (!$("calc-form").hidden) atualizarTrilha(atual);
+  });
   el.addEventListener("blur", () => fmtInput(el));
   el.addEventListener("focus", () => el.select());
 });
@@ -1075,7 +1091,6 @@ document.querySelectorAll("[data-refazer]").forEach((b) => b.addEventListener("c
   $("ir-calc").hidden = false;
   $("progresso").hidden = false;
   mostrarSo("calc-form");
-  maiorVisto = PASSOS;
   mostrarPasso(1, -1);
   iniciarEmendas();
   rolar($("calculadora"));
@@ -1267,7 +1282,7 @@ mostrarPasso(1);
 /* Números vindos do link (?fat=...&analise=1): abre a análise direto */
 const q = new URLSearchParams(location.search);
 CAMPOS.forEach((k) => { if (q.has(k)) { $(k).value = String(parse(q.get(k))).replace(".", ","); fmtInput($(k)); } });
-if (q.get("analise") === "1" && CAMPOS.every((k) => q.has(k))) { maiorVisto = PASSOS; liberar(false); }
+if (q.get("analise") === "1" && CAMPOS.every((k) => q.has(k))) { liberar(false); }
 else iniciarEmendas();
 if (document.fonts) document.fonts.ready.then(() => iniciarEmendas());
 </script>
